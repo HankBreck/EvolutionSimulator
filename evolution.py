@@ -133,8 +133,8 @@ def run_game(pop):
     avg_pops = [] # List of all of the average phenotypes from each generation
     for i in range(1000): # Runs 1000 generations
         pop_sorted = sort_population(population, j)
-        next_gen = select_from_population(pop_sorted, 44, 6)
-        next_pop = create_children(next_gen, 1)
+        next_gen = select_from_population(pop_sorted, 22, 3)
+        next_pop = create_children(next_gen, 2)
         population = mutate_population(next_pop, 1)
         average_pop = tuple(np.mean(population, axis=0))
         avg_pops.append(average_pop)
