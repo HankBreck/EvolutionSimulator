@@ -1,11 +1,9 @@
 # [0]: Speed, [1]: height, [2]: weight, [3]: food/water needs, [4]: insulation
-# Tropical, desert, ice age, rise of predators
 
 import random
 import numpy as np
 import operator
 from collections import defaultdict
-import json
 import matplotlib.pyplot as plt
 
 class NewSpecies():
@@ -16,6 +14,7 @@ class NewSpecies():
         self.req_nourish = np.random.randint(45,55)
         self.insulation = np.random.randint(45,55)
 
+        # Phenotype attribute is used for storing all of the atributes, and it acts as an organism in this program.
         self.phenotype = tuple([self.speed, self.height, self.weight, self.req_nourish, self.insulation])
 
 def form_population(k):
@@ -24,6 +23,8 @@ def form_population(k):
         new_organism = NewSpecies()
         population.append(new_organism.phenotype)
     return population
+
+# These are the hardcoded fitness functions designed for my SL IB Biology design lab
 
 def calc_fitnessT1(organism, j): # For control. Tropical the entire time.
     fitness = organism[0]*0.21 + organism[1]*0.23 + organism[2]*0.2 + organism[3]*0.18 + organism[4]*0.18
@@ -76,10 +77,10 @@ def sort_population(population, j): # Change 'calc_fitnessT1' in both locations 
     pop_sorted = defaultdict(list)
     for organism in population:
         if organism not in pop_sorted:
-            pop_sorted[organism].append(calc_fitnessT1 (organism, j))
+            pop_sorted[organism].append(calc_fitnessT2(organism, j))
         else:
-            x = NewSpecies().phenotype
-            pop_sorted[x].append(calc_fitnessT1(x, j))
+            x = NewSpecies().phenotype # This is required in case the phenotype already exists. The dictionary doesn't let use store multiple instances of the same phenotype.
+            pop_sorted[x].append(calc_fitnessT2(x, j))
     return sorted(pop_sorted.items(), key = operator.itemgetter(1), reverse=True)
 
 def select_from_population(population_sorted, best_organisms, lucky_few):
@@ -94,7 +95,7 @@ def select_from_population(population_sorted, best_organisms, lucky_few):
 def create_child(parent1, parent2):
     child_arr = []
     for i in range(len(parent1)):
-        if (100 * random.random() > 50):
+        if (100 * random.random() > 50): # Randomly selects whether to use the attribute from parent1 or parent 2. This is our method of crossing over.
             child_arr.append(parent1[i])
         else:
             child_arr.append(parent2[i])
@@ -118,7 +119,7 @@ def mutate_organism(organism):
     organism = tuple(temp_organism)
     return organism
 
-def mutate_population(population, chance_of_mutation):
+def mutate_population(population, chance_of_mutation): # chance_of_mutation must be a number between 0 & 100 (representing the % chance of a mutation occuring)
     for i in range(len(population)):
         if (random.random() * 100 < chance_of_mutation):
             population[i] = mutate_organism(population[i])
@@ -128,9 +129,9 @@ def run_game(pop):
     pop1 = pop
     population = pop
     global j
-    j = 0
-    avg_pops = []
-    for i in range(1000):
+    j = 0 # Keeps count of what generation we are on
+    avg_pops = [] # List of all of the average phenotypes from each generation
+    for i in range(1000): # Runs 1000 generations
         pop_sorted = sort_population(population, j)
         next_gen = select_from_population(pop_sorted, 44, 6)
         next_pop = create_children(next_gen, 1)
@@ -138,13 +139,7 @@ def run_game(pop):
         average_pop = tuple(np.mean(population, axis=0))
         avg_pops.append(average_pop)
         j += 1
-    # return tuple(np.mean(avg_pops, axis=0))
     return avg_pops
-
-def plot_graph(j, average_population):
-    clrs = ['g','r','b','y','purple']
-    for i in range(5):
-        plt.plot(j, average_population[i], color=clrs[i])
 
 
 if __name__ == '__main__':
@@ -155,7 +150,7 @@ if __name__ == '__main__':
             X = run_game(population)
             average_all_arr.append(X)
         xyz = []
-        for i in range(len(average_all_arr[1])):
+        for i in range(len(average_all_arr[1])): # Creates the xyz list with the averages of all 10 trials
              Y = (average_all_arr[0][i], average_all_arr[1][i], average_all_arr[2][i], average_all_arr[3][i], average_all_arr[4][i])
              y = list(np.mean(Y, axis=0))
              xyz.append(y)
@@ -187,4 +182,4 @@ if __name__ == '__main__':
         plt.legend(loc='upper left')
         plt.title('Change in Attribute Scores Based on Generation')
         plt.show()
-    average_all(10)
+    average_all(10) # 10 is the number of trials used to reduce the random error of the program
