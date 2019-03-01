@@ -182,4 +182,4 @@ if __name__ == '__main__':
         plt.legend(loc='upper left')
         plt.title('Change in Attribute Scores Based on Generation')
         plt.show()
-    average_all(10) # 10 is the number of trials used to reduce the random error of the program
+    average_all(50) # 10 is the number of trials used to reduce the random error of the program
